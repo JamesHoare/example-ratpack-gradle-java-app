@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'io.ratpack:ratpack-gradle:0.9.4-SNAPSHOT'
+        classpath 'io.ratpack:ratpack-gradle:0.9.4'
     }
 }
 
@@ -29,7 +29,11 @@ dependencies {
     springloaded "org.springframework:springloaded:1.2.0.RELEASE"
 
     // This is a Guice ratpack app
-    compile 'io.ratpack:ratpack-guice:0.9.4-SNAPSHOT'
+
+    compile ratpack.dependency("jackson")
+    compile ratpack.dependency("guice")
+    compile ratpack.dependency("codahale-metrics")
+
 }
 
 // The “ratpack” plugin is IDEA aware.

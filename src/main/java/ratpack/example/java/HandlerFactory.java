@@ -1,13 +1,15 @@
 package ratpack.example.java;
 
-import java.util.Map;
 import ratpack.guice.ModuleRegistry;
 import ratpack.handling.Chain;
 import ratpack.handling.ChainAction;
 import ratpack.handling.Handler;
 import ratpack.launch.LaunchConfig;
 
+import java.util.Map;
+
 import static ratpack.guice.Guice.handler;
+import static ratpack.jackson.Jackson.json;
 
 public class HandlerFactory implements ratpack.launch.HandlerFactory {
 
@@ -44,6 +46,10 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             // Map to /bar
             handler("bar", context -> context.render("from the bar handler"));
 
+            // Map to /james
+            handler("james", context -> context.render("from the james handler"));
+
+
             // Set up a nested routing block, which is delegated to `nestedHandler`
             prefix("nested", this::nestedHandler);
 
@@ -55,7 +61,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             prefix("static", (Chain nested) -> nested.assets("assets/images"));
 
             // If nothing above matched, we'll get to here.
-            handler(context -> context.render("root handler!"));
+            handler(context -> context.render(json("default handler")));
         }
 
         private void nestedHandler(Chain nested) {
