@@ -1,9 +1,14 @@
 package ratpack.example.java;
 
+import ratpack.codahale.metrics.CodaHaleMetricsModule;
 import ratpack.guice.ModuleRegistry;
+import ratpack.h2.H2Module;
+import ratpack.handlebars.HandlebarsModule;
 import ratpack.handling.Chain;
 import ratpack.handling.ChainAction;
 import ratpack.handling.Handler;
+import ratpack.hikari.HikariModule;
+import ratpack.jackson.JacksonModule;
 import ratpack.launch.LaunchConfig;
 
 import java.util.Map;
@@ -21,21 +26,26 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
 
     /**
      * Registers all of the Guice modules that make up the application.
-     *
+     * <p>
      * This is only invoked once during application bootstrap. If you change the
      * module configuration of an application, you must restart it.
      */
     private void registerModules(ModuleRegistry moduleRegistry) {
+        moduleRegistry.register(new CodaHaleMetricsModule());
         moduleRegistry.register(new MyModule());
+        moduleRegistry.register(new JacksonModule());
+        moduleRegistry.register(new H2Module());
+        moduleRegistry.register(new HikariModule());
+        moduleRegistry.register(new HandlebarsModule());
     }
 
     private class Routes extends ChainAction {
         /**
          * Adds potential routes.
-         *
+         * <p>
          * After this method completes, a handler chain will be constructed from
          * the specified routes.
-         *
+         * <p>
          * This method will be called for every request. This makes it possible
          * to dynamically define the routes if necessary.
          */
@@ -61,7 +71,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             prefix("static", (Chain nested) -> nested.assets("assets/images"));
 
             // If nothing above matched, we'll get to here.
-            handler(context -> context.render(json("default handler")));
+            handler(context -> context.render(json(new Customer("james", "hoare"))));
         }
 
         private void nestedHandler(Chain nested) {
@@ -70,11 +80,34 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
                 // The path tokens are the :var1 and :var2 path components above
                 Map<String, String> pathTokens = context.getPathTokens();
                 context.render(
-                    "from the nested handler, var1: " + pathTokens.get("var1") +
-                    ", var2: " + pathTokens.get("var2")
+                        "from the nested handler, var1: " + pathTokens.get("var1") +
+                                ", var2: " + pathTokens.get("var2")
                 );
             });
         }
-    }
 
+        private class Customer {
+
+            private String firstName;
+            private String lastName;
+
+            private Customer(String firstName, String lastName) {
+                this.firstName = firstName;
+                this.lastName = lastName;
+            }
+
+
+            public String getLastName() {
+                return lastName;
+            }
+
+            public String getFirstName() {
+                return firstName;
+            }
+        }
+    }
 }
+
+
+
+
