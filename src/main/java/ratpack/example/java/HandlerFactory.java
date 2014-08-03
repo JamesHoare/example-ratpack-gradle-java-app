@@ -2,6 +2,7 @@ package ratpack.example.java;
 
 import com.google.common.collect.ImmutableMap;
 import ratpack.codahale.metrics.CodaHaleMetricsModule;
+import ratpack.codahale.metrics.HealthCheckHandler;
 import ratpack.guice.ModuleRegistry;
 import ratpack.h2.H2Module;
 import ratpack.handlebars.HandlebarsModule;
@@ -35,7 +36,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
 
         Map dataSourceProperties = ImmutableMap.of("URL", "jdbc:h2:mem:dev");
 
-        moduleRegistry.register(new CodaHaleMetricsModule());
+        moduleRegistry.register(new CodaHaleMetricsModule().healthChecks().jmx().jvmMetrics().metrics().console());
         moduleRegistry.register(new MyModule());
         moduleRegistry.register(new JacksonModule());
         moduleRegistry.register(new H2Module());
@@ -74,8 +75,13 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             // Try /static/logo.png
             prefix("static", (Chain nested) -> nested.assets("assets/images"));
 
+
+            handler("health-check/:name?", new HealthCheckHandler());
+
             // If nothing above matched, we'll get to here.
             handler(context -> context.render(json(new Customer("james", "hoare"))));
+
+
         }
 
         private void nestedHandler(Chain nested) {
