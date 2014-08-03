@@ -1,5 +1,6 @@
 package ratpack.example.java;
 
+import com.google.common.collect.ImmutableMap;
 import ratpack.codahale.metrics.CodaHaleMetricsModule;
 import ratpack.guice.ModuleRegistry;
 import ratpack.h2.H2Module;
@@ -31,11 +32,14 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
      * module configuration of an application, you must restart it.
      */
     private void registerModules(ModuleRegistry moduleRegistry) {
+
+        Map dataSourceProperties = ImmutableMap.of("URL", "jdbc:h2:mem:dev");
+
         moduleRegistry.register(new CodaHaleMetricsModule());
         moduleRegistry.register(new MyModule());
         moduleRegistry.register(new JacksonModule());
         moduleRegistry.register(new H2Module());
-        moduleRegistry.register(new HikariModule());
+        moduleRegistry.register(new HikariModule(dataSourceProperties, "org.h2.jdbcx.JdbcDataSource"));
         moduleRegistry.register(new HandlebarsModule());
     }
 
