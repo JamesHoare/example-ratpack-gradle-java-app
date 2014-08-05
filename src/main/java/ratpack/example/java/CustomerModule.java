@@ -11,15 +11,15 @@ import static ratpack.handling.Handlers.chain;
 /**
  * An example Guice module.
  */
-public class MyModule extends AbstractModule implements HandlerDecoratingModule {
+public class CustomerModule extends AbstractModule implements HandlerDecoratingModule {
 
     /**
      * Adds a service impl to the application.
      *
-     * @see MyHandler
+     * @see CustomerHandler
      */
     protected void configure() {
-        bind(MyService.class).to(MyServiceImpl.class);
+        bind(CustomerService.class).to(CustomerServiceImpl.class);
     }
 
     /**

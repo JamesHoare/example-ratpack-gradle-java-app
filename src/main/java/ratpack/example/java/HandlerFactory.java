@@ -39,7 +39,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
 
         Map dataSourceProperties = ImmutableMap.of("URL", "jdbc:h2:mem:dev");
         List<Module> modules = ImmutableList.of((new CodaHaleMetricsModule().healthChecks().jmx().jvmMetrics().metrics()),
-                new MyModule(), new JacksonModule(), new H2Module(), new HikariModule(dataSourceProperties, "org.h2.jdbcx.JdbcDataSource"), new HandlebarsModule());
+                new CustomerModule(), new JacksonModule(), new H2Module(), new HikariModule(dataSourceProperties, "org.h2.jdbcx.JdbcDataSource"), new HandlebarsModule());
         bindingsSpec.add(modules);
 
 
@@ -65,7 +65,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             prefix("nested", this::nestedHandler);
 
             // Map to a dependency injected handler
-            handler("injected", getRegistry().get(MyHandler.class));
+            handler("customerhandler", getRegistry().get(CustomerHandler.class));
 
             // Bind the /static app path to the src/ratpack/assets/images dir
             // Try /static/logo.png
@@ -92,25 +92,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             });
         }
 
-        private class Customer {
 
-            private String firstName;
-            private String lastName;
-
-            private Customer(String firstName, String lastName) {
-                this.firstName = firstName;
-                this.lastName = lastName;
-            }
-
-
-            public String getLastName() {
-                return lastName;
-            }
-
-            public String getFirstName() {
-                return firstName;
-            }
-        }
     }
 }
 

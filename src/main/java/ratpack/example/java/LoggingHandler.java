@@ -6,7 +6,7 @@ import ratpack.handling.Handler;
 /**
  * An example of a handler implicitly set up by a module
  *
- * @see MyModule
+ * @see CustomerModule
  */
 public class LoggingHandler implements Handler {
 
