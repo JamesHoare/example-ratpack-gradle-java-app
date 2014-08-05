@@ -35,8 +35,8 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
     private void registerModules(ModuleRegistry moduleRegistry) {
 
         Map dataSourceProperties = ImmutableMap.of("URL", "jdbc:h2:mem:dev");
-
-        moduleRegistry.register(new CodaHaleMetricsModule().healthChecks().jmx().jvmMetrics().metrics().console());
+        //ensure this module is registered first
+        moduleRegistry.register(new CodaHaleMetricsModule().healthChecks().jmx().jvmMetrics().metrics());
         moduleRegistry.register(new MyModule());
         moduleRegistry.register(new JacksonModule());
         moduleRegistry.register(new H2Module());
@@ -55,14 +55,9 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
          * to dynamically define the routes if necessary.
          */
         protected void execute() throws Exception {
-            // Map to /foo
-            handler("foo", context -> context.render("from the foo handler"));
 
-            // Map to /bar
-            handler("bar", context -> context.render("from the bar handler"));
-
-            // Map to /james
-            handler("james", context -> context.render("from the james handler"));
+            // Map to /customer
+            handler("customer", context -> context.render(json(new Customer("james", "hoare"))));
 
 
             // Set up a nested routing block, which is delegated to `nestedHandler`
@@ -78,7 +73,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
 
             handler("health-check/:name?", new HealthCheckHandler());
 
-            // If nothing above matched, we'll get to here.
+            // default handler
             handler(context -> context.render(json(new Customer("james", "hoare"))));
 
 
