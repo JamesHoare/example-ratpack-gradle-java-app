@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'io.ratpack:ratpack-gradle:0.9.4'
+        classpath 'io.ratpack:ratpack-gradle:0.9.7'
     }
 }
 
@@ -14,7 +14,7 @@ if (!JavaVersion.current().java8Compatible) {
 
 // The “ratpack” plugin applies the “application” plugin, making it easy to create a standalone application.
 // See: http://gradle.org/docs/current/userguide/application_plugin.html
-apply plugin: "ratpack"
+apply plugin: "io.ratpack.ratpack-java"
 
 repositories {
     maven { url "http://oss.jfrog.org/artifactory/repo" }
@@ -27,9 +27,7 @@ dependencies {
 
     // SpringLoaded enables runtime hot reloading.
     // It is not part of the app runtime and is not shipped in the distribution.
-    //springloaded "org.springframework:springloaded:1.2.0.RELEASE"
-
-
+    springloaded "org.springframework:springloaded:1.2.0.RELEASE"
     compile ratpack.dependency("jackson")
     compile ratpack.dependency("guice")
     compile ratpack.dependency("codahale-metrics")
@@ -43,3 +41,11 @@ dependencies {
 // The “ratpack” plugin is IDEA aware.
 // It will create a run configuration in IDEA to launch your app in your IDE, with hot reloading.
 apply plugin: "idea"
+
+idea {
+
+    module {
+        inheritOutputDirs = false
+        outputDir = file("$buildDir/classes/main/")
+    }
+}

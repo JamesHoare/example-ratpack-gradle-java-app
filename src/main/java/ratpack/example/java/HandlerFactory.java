@@ -1,9 +1,11 @@
 package ratpack.example.java;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Module;
 import ratpack.codahale.metrics.CodaHaleMetricsModule;
 import ratpack.codahale.metrics.HealthCheckHandler;
-import ratpack.guice.ModuleRegistry;
+import ratpack.guice.BindingsSpec;
 import ratpack.h2.H2Module;
 import ratpack.handlebars.HandlebarsModule;
 import ratpack.handling.Chain;
@@ -13,6 +15,7 @@ import ratpack.hikari.HikariModule;
 import ratpack.jackson.JacksonModule;
 import ratpack.launch.LaunchConfig;
 
+import java.util.List;
 import java.util.Map;
 
 import static ratpack.guice.Guice.handler;
@@ -32,16 +35,14 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
      * This is only invoked once during application bootstrap. If you change the
      * module configuration of an application, you must restart it.
      */
-    private void registerModules(ModuleRegistry moduleRegistry) {
+    private void registerModules(BindingsSpec bindingsSpec) {
 
         Map dataSourceProperties = ImmutableMap.of("URL", "jdbc:h2:mem:dev");
-        //ensure this module is registered first
-        moduleRegistry.register(new CodaHaleMetricsModule().healthChecks().jmx().jvmMetrics().metrics());
-        moduleRegistry.register(new MyModule());
-        moduleRegistry.register(new JacksonModule());
-        moduleRegistry.register(new H2Module());
-        moduleRegistry.register(new HikariModule(dataSourceProperties, "org.h2.jdbcx.JdbcDataSource"));
-        moduleRegistry.register(new HandlebarsModule());
+        List<Module> modules = ImmutableList.of((new CodaHaleMetricsModule().healthChecks().jmx().jvmMetrics().metrics()),
+                new MyModule(), new JacksonModule(), new H2Module(), new HikariModule(dataSourceProperties, "org.h2.jdbcx.JdbcDataSource"), new HandlebarsModule());
+        bindingsSpec.add(modules);
+
+
     }
 
     private class Routes extends ChainAction {
