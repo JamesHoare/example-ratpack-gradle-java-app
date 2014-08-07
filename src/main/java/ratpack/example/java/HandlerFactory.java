@@ -3,6 +3,8 @@ package ratpack.example.java;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Module;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ratpack.codahale.metrics.CodaHaleMetricsModule;
 import ratpack.codahale.metrics.HealthCheckHandler;
 import ratpack.guice.BindingsSpec;
@@ -22,6 +24,9 @@ import static ratpack.guice.Guice.handler;
 import static ratpack.jackson.Jackson.json;
 
 public class HandlerFactory implements ratpack.launch.HandlerFactory {
+
+
+    final Logger log = LoggerFactory.getLogger(HandlerFactory.class);
 
     @Override
     public Handler create(LaunchConfig launchConfig) throws Exception {
@@ -72,7 +77,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             prefix("static", (Chain nested) -> nested.assets("assets/images"));
 
 
-            handler("health-check/:name?", new HealthCheckHandler());
+            handler("health-check/:name?", context -> context.render(json(new HealthCheckHandler())));
 
             // default handler
             handler(context -> context.render(json(new Customer("james", "hoare"))));
