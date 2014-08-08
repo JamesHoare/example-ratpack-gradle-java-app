@@ -1,5 +1,6 @@
 package ratpack.example.java;
 
+import com.codahale.metrics.health.HealthCheck;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Module;
@@ -7,15 +8,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ratpack.codahale.metrics.CodaHaleMetricsModule;
 import ratpack.codahale.metrics.HealthCheckHandler;
+import ratpack.codahale.metrics.HealthCheckResults;
 import ratpack.guice.BindingsSpec;
 import ratpack.h2.H2Module;
 import ratpack.handlebars.HandlebarsModule;
 import ratpack.handling.Chain;
 import ratpack.handling.ChainAction;
+import ratpack.handling.Context;
 import ratpack.handling.Handler;
 import ratpack.hikari.HikariModule;
 import ratpack.jackson.JacksonModule;
 import ratpack.launch.LaunchConfig;
+import ratpack.render.RendererSupport;
 
 import java.util.List;
 import java.util.Map;
@@ -43,8 +47,12 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
     private void registerModules(BindingsSpec bindingsSpec) {
 
         Map dataSourceProperties = ImmutableMap.of("URL", "jdbc:h2:mem:dev");
-        List<Module> modules = ImmutableList.of((new CodaHaleMetricsModule().healthChecks().jmx().jvmMetrics().metrics()),
+        List<Module> modules = ImmutableList.of((new CodaHaleMetricsModule()
+                        .healthChecks().jmx().jvmMetrics().metrics()),
                 new CustomerModule(), new JacksonModule(), new H2Module(), new HikariModule(dataSourceProperties, "org.h2.jdbcx.JdbcDataSource"), new HandlebarsModule());
+        bindingsSpec.bind(new HealthCheckJsonRenderer());
+        bindingsSpec.bind(new HealthChecksJsonRenderer());
+
         bindingsSpec.add(modules);
 
 
@@ -77,7 +85,7 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
             prefix("static", (Chain nested) -> nested.assets("assets/images"));
 
 
-            handler("health-check/:name?", context -> context.render(json(new HealthCheckHandler())));
+            handler("health-check/:name?", new HealthCheckHandler());
 
             // default handler
             handler(context -> context.render(json(new Customer("james", "hoare"))));
@@ -99,6 +107,22 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
 
 
     }
+
+    static class HealthChecksJsonRenderer extends RendererSupport<HealthCheckResults> {
+        @Override
+        public void render(Context context, HealthCheckResults object) throws Exception {
+            context.render(json(object.getResults()));
+        }
+    }
+
+    static class HealthCheckJsonRenderer extends RendererSupport<HealthCheck.Result> {
+        @Override
+        public void render(Context context, HealthCheck.Result object) throws Exception {
+            context.render(json(object));
+        }
+    }
+
+
 }
 
 
