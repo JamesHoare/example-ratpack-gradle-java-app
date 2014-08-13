@@ -48,10 +48,11 @@ public class HandlerFactory implements ratpack.launch.HandlerFactory {
 
         Map dataSourceProperties = ImmutableMap.of("URL", "jdbc:h2:mem:dev");
         List<Module> modules = ImmutableList.of((new CodaHaleMetricsModule()
-                        .healthChecks().jmx().jvmMetrics().metrics()),
+                        .healthChecks().jvmMetrics().metrics()),
                 new CustomerModule(), new JacksonModule(), new H2Module(), new HikariModule(dataSourceProperties, "org.h2.jdbcx.JdbcDataSource"), new HandlebarsModule());
         bindingsSpec.bind(new HealthCheckJsonRenderer());
         bindingsSpec.bind(new HealthChecksJsonRenderer());
+
 
         bindingsSpec.add(modules);
 
